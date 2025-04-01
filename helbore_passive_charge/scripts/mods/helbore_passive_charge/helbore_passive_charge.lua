@@ -7,18 +7,26 @@ local next_release = false
 local next_release_forced = false
 local can_release_again = true
 
-mod._toggle_select = function() 
-    is_enabled = not is_enabled
+
+mod:io_dofile("helbore_passive_charge/scripts/mods/helbore_passive_charge/create_ui")
+
+mod._toggle_select = function()
+    if wielding_charge then 
+        is_enabled = not is_enabled
+    end
+    mod:get_hud_element():set_active(is_enabled)
 end
 
 mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "on_slot_wielded", function(self, slot_name, ...)
     if self._player == Managers.player:local_player(1) then
         local wep_template = self._weapons[slot_name].weapon_template
-        wielding_charge = wep_template.displayed_attacks and wep_template.displayed_attacks.primary.type == "charge"
-        mod:debug("wielding_charge" .. tostring(wielding_charge))
+        wielding_charge = wep_template.displayed_attacks and wep_template.displayed_attacks.primary.type == "charge" and wep_template.actions.vent == nil
+        --mod:debug("wielding_charge" .. tostring(wielding_charge))
     else
         wielding_charge = false
     end    
+
+    mod:get_hud_element():set_enabled(wielding_charge)
 
 end)
 
@@ -29,20 +37,20 @@ end
 
 mod:hook_require("scripts/utilities/alternate_fire", function(AlternateFire)
     mod:hook_safe(AlternateFire, "start", function(alternate_fire_component, weapon_tweak_templates_component, spread_control_component, sway_control_component, sway_component, movement_state_component, peeking_component, first_person_extension, animation_extension, weapon_extension, weapon_template, player_unit, ...)
-        mod:debug('alternative fire entered')
-        mod:debug("player unit: %s", tostring(player_unit))
+        --mod:debug('alternative fire entered')
+        --mod:debug("player unit: %s", tostring(player_unit))
         if player_unit == _get_player_unit() then
             currently_aiming = true
-            mod:debug("currently_aiming: true")
+            --mod:debug("currently_aiming: true")
         end
     end)
 
     mod:hook_safe(AlternateFire, "stop", function(alternate_fire_component, peeking_component, first_person_extension, weapon_tweak_templates_component, animation_extension, weapon_template, player_unit, from_action_input)
-        mod:debug("alternative fire exited")
-        mod:debug("player unit: %s", tostring(player_unit))
+        --mod:debug("alternative fire exited")
+       -- mod:debug("player unit: %s", tostring(player_unit))
         if player_unit == _get_player_unit() then
             currently_aiming = false
-            mod:debug("currently_aiming: false")
+            --mod:debug("currently_aiming: false")
             next_release = false
             next_release_forced = false
             can_release_again = true

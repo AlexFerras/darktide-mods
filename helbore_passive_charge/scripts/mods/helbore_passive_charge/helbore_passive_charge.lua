@@ -14,7 +14,10 @@ mod._toggle_select = function()
     if wielding_charge then 
         is_enabled = not is_enabled
     end
-    mod:get_hud_element():set_active(is_enabled)
+    local hud_elem = mod:get_hud_element()
+    if hud_elem then
+        hud_elem:set_active(is_enabled)
+    end
 end
 
 mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "on_slot_wielded", function(self, slot_name, ...)
@@ -25,8 +28,10 @@ mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "on_slot_wielded", function(self,
     else
         wielding_charge = false
     end    
-
-    mod:get_hud_element():set_enabled(wielding_charge)
+    local hud_elem = mod:get_hud_element()
+    if hud_elem then
+        hud_elem:set_enabled(wielding_charge)
+    end
 
 end)
 

@@ -70,7 +70,6 @@ local _input_action_hook = function(func, self, action_name)
     if not is_enabled then
         return val
     end
-    local val = func(self, action_name)
 
 
 

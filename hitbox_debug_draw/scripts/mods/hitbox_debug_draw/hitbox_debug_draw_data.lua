@@ -1,4 +1,4 @@
-local mod = get_mod("melee_hitbox_debug_draw")
+local mod = get_mod("hitbox_debug_draw")
 
 return {
 	name = mod:localize("mod_name"),
@@ -12,12 +12,6 @@ return {
 				default_value = 3,
 				range = {0, 60},
 				unit_text = "lifetime"
-			},
-			{
-				setting_id = "dodge",
-				type = "checkbox",
-				default_value = true
-
 			}
 		}
 	}

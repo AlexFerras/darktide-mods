@@ -410,24 +410,32 @@ mod:hook_require("scripts/utilities/attack/explosion", function(instance)
 end)
 
 local renegade_netgunner_actions = require('scripts/settings/breed/breed_actions/renegade/renegade_netgunner_actions')
-mod:hook_require('scripts/settings/fx/effect_templates/renegade_netgunner_net', function(instance)
-    mod:hook_safe(instance, 'update', function(template_data, template_context, dt, t)
-        local game_session = template_context.game_session
-        world = template_context.world
-        
-        local net_game_object_id = template_data.game_object_id
-        local pos = GameSession.game_object_field(game_session, net_game_object_id, 'net_sweep_position')
-        local dodge_radius = renegade_netgunner_actions.shoot_net.net_dodge_sweep_radius
-        local radius = renegade_netgunner_actions.shoot_net.net_sweep_radius
+local played = false
+mod:hook_require('scripts/extension_systems/behavior/nodes/actions/bt_shoot_net_action', function(instance)
+    mod:hook_safe(instance, '_update_shooting', function(self, unit, breed, dt, t, scratchpad, action_data)
+        if played then
+            return
+        end
+        local shoot_data = scratchpad.shoot_data
+        local old_sweep_position, direction = shoot_data.sweep_position:unbox(), shoot_data.direction:unbox()
+ 
+
+        local radius = action_data.net_sweep_radius
+        local net_dodge_sweep_radius = action_data.net_dodge_sweep_radius
 
         local lineobject = _create_temp_line_object(mod:get("lifetime"))
 
         
-        LineObject.add_sphere(lineobject, main_color(), pos, radius)
-        LineObject.add_sphere(lineobject, dodge_color(), pos, dodge_radius)
+        LineObject.add_sphere(lineobject, main_color(), old_sweep_position, radius)
+
+
+        local offset = radius * 0.3
+        local capsule_down = old_sweep_position - Vector3(0, 0, offset)
+        local capsule_up = old_sweep_position + Vector3(0, 0, offset)
+        LineObject.add_capsule(lineobject, dodge_color(), capsule_down, capsule_up, net_dodge_sweep_radius)
 
         LineObject.dispatch(world, lineobject)
-
+        played = true
     end)
 end)
 

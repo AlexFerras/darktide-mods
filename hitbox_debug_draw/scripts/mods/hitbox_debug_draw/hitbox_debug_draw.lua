@@ -413,9 +413,6 @@ local renegade_netgunner_actions = require('scripts/settings/breed/breed_actions
 local played = false
 mod:hook_require('scripts/extension_systems/behavior/nodes/actions/bt_shoot_net_action', function(instance)
     mod:hook_safe(instance, '_update_shooting', function(self, unit, breed, dt, t, scratchpad, action_data)
-        if played then
-            return
-        end
         local shoot_data = scratchpad.shoot_data
         local old_sweep_position, direction = shoot_data.sweep_position:unbox(), shoot_data.direction:unbox()
  
@@ -435,7 +432,6 @@ mod:hook_require('scripts/extension_systems/behavior/nodes/actions/bt_shoot_net_
         LineObject.add_capsule(lineobject, dodge_color(), capsule_down, capsule_up, net_dodge_sweep_radius)
 
         LineObject.dispatch(world, lineobject)
-        played = true
     end)
 end)
 

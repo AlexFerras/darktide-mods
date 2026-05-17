@@ -10,6 +10,10 @@ return {
 	},
 	pressed_passive_charge = {
 		en = "Toggle passive charge"
+	},
+	hide_widget = {
+		en = "Hide charge indicator"
 	}
+
 
 }

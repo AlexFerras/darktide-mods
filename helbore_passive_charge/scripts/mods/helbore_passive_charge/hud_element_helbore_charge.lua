@@ -45,6 +45,12 @@ end
 
 
 HudElementHelboreCharge.update = function(self,...)
+    if mod:get("hide_widget") then
+        HudElementHelboreCharge.set_enabled(self, false)
+        return
+    end
+
+
     local ui_hud = self._parent
     local weapon_handler = ui_hud:element("HudElementPlayerWeaponHandler")
     --mod:echo(weapon_handler)

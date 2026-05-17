@@ -20,7 +20,13 @@ return {
 						function_name   = "_toggle_select",
 					}
                 }
-            }
+            },
+			{
+				setting_id = "hide_widget",
+				type = "checkbox",
+				default_value = false,
+				unit_text = "hide_widget"
+			},
         }
     }
 }

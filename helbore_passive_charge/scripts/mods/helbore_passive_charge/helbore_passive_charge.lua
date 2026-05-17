@@ -10,6 +10,13 @@ local can_release_again = true
 
 mod:io_dofile("helbore_passive_charge/scripts/mods/helbore_passive_charge/create_ui")
 
+
+mod.is_wielding_charge = function()
+
+    return wielding_charge
+
+end
+
 -- Toggle function
 mod._toggle_select = function()
     if wielding_charge then 
@@ -21,27 +28,53 @@ mod._toggle_select = function()
     end
 end
 
--- Update wielding_charge on weapon switch
-mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "on_slot_wielded", function(self, slot_name, ...)
-    if self._player == Managers.player:local_player(1) then
-        local wep_template = self._weapons[slot_name].weapon_template
-        wielding_charge = wep_template.displayed_attacks
-                        and wep_template.displayed_attacks.primary.type == "charge"
-                        and wep_template.actions.vent == nil
-    else
-        wielding_charge = false
-    end    
-    local hud_elem = mod:get_hud_element()
-    if hud_elem then
-        hud_elem:set_enabled(wielding_charge)
-    end
+local _check_wielded = function(wep_template) 
+    wielding_charge = wep_template.displayed_attacks ~= nil
+    and wep_template.displayed_attacks.primary.type == "charge" 
+    and wep_template.actions.vent == nil
+
+
+
+end
+
+
+-- -- Update wielding_charge on weapon switch
+-- mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "on_slot_wielded", function(self, slot_name, ...)
+--     if self._player == Managers.player:local_player(1) then
+--         local wep_template = self._weapons[slot_name].weapon_template
+--         --_check_wielded(wep_template)
+--     end
+--     --else
+--         --wielding_charge = false
+--     --end    
+
+-- end)
+
+
+
+mod:hook_safe(CLASS.PlayerUnitWeaponExtension, "fixed_update", function(self, unit, dt, t, fixed_frame)
+    -- maybe throttle here?
+    --mod:echo()
+    local weapon = self:_wielded_weapon(self._inventory_component, self._weapons).weapon_template
+    _check_wielded(weapon)
+
 end)
+
+
+
 
 -- Get local player unit
 local _get_player_unit = function()
     local plr = Managers.player and Managers.player:local_player(1)
     return plr and plr.player_unit
 end
+
+local full_auto_mod = nil
+
+mod.on_all_mods_loaded = function()
+  full_auto_mod = get_mod("FullAuto")
+end
+
 
 -- Direct input detection for M2 (secondary fire)
 local _input_action_hook = function(func, self, action_name)
@@ -51,10 +84,17 @@ local _input_action_hook = function(func, self, action_name)
         return val
     end
 
+    --if full_auto_mod and full_auto_mod.is_firing then
+        --mod:echo("full auto is firing")
+     --   return val
+    --end
+
     -- Track secondary fire key directly
     if action_name == "action_two_hold" then
         currently_aiming = wielding_charge and val
+      --  mod:echo("currently aiming = " .. tostring(currently_aiming))
     end
+    
 
     -- Original LMB charge logic
     local is_lmb_action = action_name == "action_one_hold"
@@ -80,7 +120,9 @@ local _input_action_hook = function(func, self, action_name)
                 end
                 return true
             end
+        --mod:echo("lmb action released" .. tostring(lmb_release_action_pressed))
         elseif lmb_release_action_pressed and not can_release_again then
+            
             next_release_forced = true
             can_release_again = true
             return true

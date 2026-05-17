@@ -36,25 +36,47 @@ local ui_definitions = {
     }
 }
 
-local HudElementCharge = class("HudElementCharge", "HudElementBase")
+local HudElementHelboreCharge = class("HudElementHelboreCharge", "HudElementBase")
 
-HudElementCharge.init = function(self, parent, draw_layer, start_scale)
+HudElementHelboreCharge.init = function(self, parent, draw_layer, start_scale)
    -- mod:debug("Initializing hud element")
-    HudElementCharge.super.init(self, parent, draw_layer, start_scale, ui_definitions)
+    HudElementHelboreCharge.super.init(self, parent, draw_layer, start_scale, ui_definitions)
 end
 
-HudElementCharge.set_enabled = function(self, enabled)
+
+HudElementHelboreCharge.update = function(self,...)
+    local ui_hud = self._parent
+    local weapon_handler = ui_hud:element("HudElementPlayerWeaponHandler")
+    --mod:echo(weapon_handler)
+    if weapon_handler ~= nil and weapon_handler._player_weapons.slot_primary ~= nil then
+
+        local wanted_element = weapon_handler._player_weapons.slot_primary.hud_element_player_weapon
+        --mod:echo(wanted_element._widgets_by_name.icon.visible)
+        local should_be_enabled = wanted_element and wanted_element._widgets_by_name.icon.visible and mod:is_wielding_charge()
+        HudElementHelboreCharge.set_enabled(self, should_be_enabled)
+
+    else
+        HudElementHelboreCharge.set_enabled(self, false)--self:set_scenegraph_position("screen", x, y, z, horizontal_alignment, vertical_alignment)
+    end
+   
+    HudElementHelboreCharge.super.update(self, ...)
+
+end
+
+HudElementHelboreCharge.set_enabled = function(self, enabled)
     self._widgets_by_name.charge.style.icon.visible = enabled
 end
 
-HudElementCharge.set_active = function(self, active)
+HudElementHelboreCharge.set_active = function(self, active)
     self._widgets_by_name.charge.style.icon.color = active and color_enabled or color_disabled
 end
 
-HudElementCharge.set_side_length = function(self, side_length)
+HudElementHelboreCharge.set_side_length = function(self, side_length)
     local widget_size = self._widgets_by_name.charge.style.icon.size
     widget_size[1] = side_length
     widget_size[2] = side_length
 end
 
-return HudElementCharge
+
+
+return HudElementHelboreCharge
